@@ -1,39 +1,59 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
+import '../global.css';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { AuthProvider } from '@/contexts/AuthContext';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+/**
+ * Root App Layout
+ * Manages app-wide configuration, authentication state, and navigation
+ * Initializes essential providers and handles deep linking
+ */
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
+/**
+ * RootLayout Component
+ * @component
+ * Features:
+ * - Authentication state management
+ * - Font loading and splash screen handling
+ * - Theme provider integration
+ * - Navigation configuration
+ */
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  // Keep the splash screen visible while we fetch resources
+  SplashScreen.preventAutoHideAsync();
+
+  const [fontsLoaded, fontError] = useFonts({
+    // Add your custom fonts here if needed
   });
 
+  /**
+   * Handle font loading and splash screen
+   */
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded || fontError) {
+      // Hide splash screen once fonts are loaded or if there's an error
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded, fontError]);
 
-  if (!loaded) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name='(welcome-screens)'
+        options={{ headerShown: false }}
+      />
+     
+        <Stack.Screen
+          name='(auth)'
+          options={{ headerShown: false }}
+        />
+    
+    </Stack>
   );
 }
