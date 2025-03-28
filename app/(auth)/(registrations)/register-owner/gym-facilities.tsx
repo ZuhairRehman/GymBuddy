@@ -58,56 +58,56 @@ export default function GymFacilitiesScreen() {
     }));
   };
 
- const handleNext = async () => {
-   if (formData.facilities.length === 0) {
-     alert('Please select at least one facility.');
-     return;
-   }
+  const handleNext = async () => {
+    if (formData.facilities.length === 0) {
+      alert('Please select at least one facility.');
+      return;
+    }
 
-   try {
-     const {
-       data: { session },
-     } = await supabase.auth.getSession();
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-     if (!session?.user) {
-       router.replace('/sign-up'); // Redirect to sign-up if no session exists
-       return;
-     }
+      if (!session?.user) {
+        router.replace('/sign-up'); // Redirect to sign-up if no session exists
+        return;
+      }
 
-     // Fetch the gym ID for the authenticated user
-     const { data: gym, error: gymError } = await supabase
-       .from('gyms')
-       .select('id')
-       .eq('owner_id', session.user.id)
-       .single();
+      // Fetch the gym ID for the authenticated user
+      const { data: gym, error: gymError } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('owner_id', session.user.id)
+        .single();
 
-     if (gymError || !gym) {
-       console.error('Error fetching gym ID:', gymError);
-       alert('Failed to fetch gym details. Please try again.');
-       return;
-     }
+      if (gymError || !gym) {
+        console.error('Error fetching gym ID:', gymError);
+        alert('Failed to fetch gym details. Please try again.');
+        return;
+      }
 
-     // Insert selected facilities into the gym_facilities table
-     const facilitiesData = formData.facilities.map(facility => ({
-       gym_id: gym.id,
-       facility_name: facility,
-     }));
+      // Insert selected facilities into the gym_facilities table
+      const facilitiesData = formData.facilities.map(facility => ({
+        gym_id: gym.id,
+        facility_name: facility,
+      }));
 
-     const { error: insertError } = await supabase.from('gym_facilities').insert(facilitiesData);
+      const { error: insertError } = await supabase.from('gym_facilities').insert(facilitiesData);
 
-     if (insertError) {
-       console.error('Error inserting facilities:', insertError);
-       alert('Failed to save facilities. Please try again.');
-       return;
-     }
+      if (insertError) {
+        console.error('Error inserting facilities:', insertError);
+        alert('Failed to save facilities. Please try again.');
+        return;
+      }
 
-     // Navigate to the next step in the registration process
-     router.push('/(auth)/register-owner/gym-pricing');
-   } catch (error) {
-     console.error('Unexpected error:', error);
-     alert('An unexpected error occurred. Please try again.');
-   }
- };
+      // Navigate to the next step in the registration process
+      router.push('/(auth)/register-owner/gym-pricing');
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
+  };
 
   return (
     <SafeAreaView
