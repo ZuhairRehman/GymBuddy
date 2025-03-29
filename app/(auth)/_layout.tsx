@@ -57,15 +57,19 @@ export default function AuthLayout() {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='(login)'
+          name='login'
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='(sign-up)'
+          name='sign-up'
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name='(forgot-password)'
+          name='forgot-password'
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='(member)'
           options={{ headerShown: false }}
         />
       </Stack>

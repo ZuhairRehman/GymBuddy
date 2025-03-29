@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -213,12 +213,14 @@ export default function OwnerDashboard() {
                     {member.phone}
                   </Text>
                 </View>
-                {member.profileImage && (
-                  <Image
-                    source={{ uri: member.profileImage }}
-                    className='w-10 h-10 rounded-full'
-                  />
-                )}
+                <Image
+                  source={{
+                    uri:
+                      member.profileImage ||
+                      'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                  }}
+                  className='w-10 h-10 rounded-full'
+                />
               </View>
             </TouchableOpacity>
           ))}

@@ -1,8 +1,10 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Screen from '@/components/ui/Screen';
+import { supabase } from '@/lib/supabase/supabase';
+import { router } from 'expo-router';
 
 export default function OwnerProfile() {
   const colorScheme = useColorScheme();
@@ -90,6 +92,34 @@ export default function OwnerProfile() {
     },
   ];
 
+  const handleSignOut = async () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase.auth.signOut();
+              if (error) throw error;
+              router.replace('/login');
+            } catch (error) {
+              console.error('Error signing out:', error);
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   return (
     <Screen scrollable>
       {/* Profile Header */}
@@ -173,21 +203,20 @@ export default function OwnerProfile() {
       <TouchableOpacity
         className='flex-row items-center justify-center p-4 rounded-xl mb-6'
         style={{
-          backgroundColor: theme.primary,
-          shadowColor: colorScheme === 'dark' ? '#000' : '#ccc',
-          shadowOpacity: 0.2,
-          shadowRadius: 4,
-          shadowOffset: { width: 0, height: 2 },
+          backgroundColor: theme.surface,
+          borderWidth: 1,
+          borderColor: '#EF4444',
         }}
+        onPress={handleSignOut}
       >
         <MaterialCommunityIcons
           name='logout'
           size={20}
-          color={theme.onPrimary}
+          color='#EF4444'
           style={{ marginRight: 8 }}
         />
         <Text
-          style={{ color: theme.onPrimary }}
+          style={{ color: '#EF4444' }}
           className='text-base font-medium'
         >
           Sign Out
