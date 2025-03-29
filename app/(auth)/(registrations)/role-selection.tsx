@@ -56,7 +56,7 @@ export default function RoleSelectionScreen() {
       }
 
       // Insert a new row into the profiles table with the selected role
-      const { error: profileError } = await supabase.from('profiles').insert({
+      const { error: profileError } = await supabase.from('profiles').upsert({
         id: session.user.id, // User ID from Supabase Auth
         full_name: 'New User', // Provide a default value
         role: roleId as 'owner' | 'trainer' | 'member', // Selected role

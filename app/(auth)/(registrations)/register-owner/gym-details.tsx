@@ -81,7 +81,7 @@ export default function GymDetailsScreen() {
     if (!formData.city) tempErrors.city = 'City is required';
     if (!formData.state) tempErrors.state = 'State is required';
     if (!formData.pinCode) tempErrors.pinCode = 'PIN code is required';
-    if (!/^\d{6}$/.test(formData.pinCode)) tempErrors.pinCode = 'Enter valid 6-digit PIN code';
+    if (!/^\d{5}$/.test(formData.pinCode)) tempErrors.pinCode = 'Enter valid 6-digit PIN code';
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -114,13 +114,20 @@ export default function GymDetailsScreen() {
         });
 
         if (insertError) {
-          console.error('Error inserting gym details:', insertError);
-          alert('Failed to save gym details. Please try again.');
+          // Handle specific database constraint violations
+          if (insertError.code === '23505') {
+            // Unique constraint violation (e.g., duplicate gym name for the same owner)
+            alert('A gym with this name already exists. Please choose a different name.');
+          } else {
+            // General error handling
+            console.error('Error inserting gym details:', insertError);
+            alert('Failed to save gym details. Please try again.');
+          }
           return;
         }
 
         // Navigate to the next step in the registration process
-        router.push('/(auth)/register-owner/gym-facilities');
+        router.push('/(auth)/(registrations)/register-owner/gym-facilities');
       } catch (error) {
         console.error('Unexpected error:', error);
         alert('An unexpected error occurred. Please try again.');
@@ -247,7 +254,7 @@ export default function GymDetailsScreen() {
               value={formData.pinCode}
               onChangeText={text => updateFormData('pinCode', text)}
               error={errors.pinCode}
-              maxLength={6}
+              maxLength={5}
             />
           </RegistrationInput>
         </ScrollView>

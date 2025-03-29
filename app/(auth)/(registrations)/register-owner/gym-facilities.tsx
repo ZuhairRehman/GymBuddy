@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  SafeAreaView,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { COLORS } from '@/constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import RegistrationInput from '@/components/ui/RegistrationInput';
 import UiButton from '@/components/ui/UiButton';
 import { supabase } from '@/lib/supabase/supabase';
 
@@ -41,13 +33,14 @@ const operatingDays = [
 ];
 
 export default function GymFacilitiesScreen() {
-  const colorScheme = useColorScheme();
-  const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
-
   const [formData, setFormData] = useState({
     facilities: [] as string[],
     operatingHours: {} as Record<string, { open: string; close: string }>,
   });
+
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [isPickerVisible, setIsPickerVisible] = useState(false);
+  const [pickerType, setPickerType] = useState<'open' | 'close'>('open');
 
   const toggleFacility = (facility: string) => {
     setFormData(prev => ({
@@ -56,6 +49,33 @@ export default function GymFacilitiesScreen() {
         ? prev.facilities.filter(f => f !== facility)
         : [...prev.facilities, facility],
     }));
+  };
+
+  const showPicker = (day: string, type: 'open' | 'close') => {
+    setSelectedDay(day);
+    setPickerType(type);
+    setIsPickerVisible(true);
+  };
+
+  const hidePicker = () => {
+    setIsPickerVisible(false);
+    setSelectedDay(null);
+  };
+
+  const handleConfirm = (time: Date) => {
+    if (selectedDay) {
+      setFormData(prev => ({
+        ...prev,
+        operatingHours: {
+          ...prev.operatingHours,
+          [selectedDay]: {
+            ...prev.operatingHours[selectedDay],
+            [pickerType]: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          },
+        },
+      }));
+    }
+    hidePicker();
   };
 
   const handleNext = async () => {
@@ -93,13 +113,33 @@ export default function GymFacilitiesScreen() {
         facility_name: facility,
       }));
 
-      const { error: insertError } = await supabase.from('gym_facilities').insert(facilitiesData);
+      const { error: facilitiesError } = await supabase
+        .from('gym_facilities')
+        .insert(facilitiesData);
 
-      if (insertError) {
-        console.error('Error inserting facilities:', insertError);
-        alert('Failed to save facilities. Please try again.');
+      if (facilitiesError) {
+        console.error('Error inserting facilities:', facilitiesError);
+        alert('Some of the facilities already added');
         return;
       }
+
+      // Insert operating hours into the gym_operating_hours table
+      // const operatingHoursData = Object.entries(formData.operatingHours).map(([day, hours]) => ({
+      //   gym_id: gym.id,
+      //   day_of_week: day,
+      //   open_time: hours.open,
+      //   close_time: hours.close,
+      // }));
+
+      // const { error: hoursError } = await supabase
+      //   .from('gym_operating_hours')
+      //   .insert(operatingHoursData);
+
+      // if (hoursError) {
+      //   console.error('Error inserting operating hours:', hoursError);
+      //   alert('Failed to save operating hours. Please try again.');
+      //   return;
+      // }
 
       // Navigate to the next step in the registration process
       router.push('/(auth)/register-owner/gym-pricing');
@@ -112,9 +152,9 @@ export default function GymFacilitiesScreen() {
   return (
     <SafeAreaView
       className='flex-1'
-      style={{ backgroundColor: theme.background }}
+      style={{ backgroundColor: COLORS.light.background }}
     >
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style='dark' />
 
       {/* Header */}
       <View className='p-6 mt-5'>
@@ -122,14 +162,8 @@ export default function GymFacilitiesScreen() {
           className='flex-row items-center'
           onPress={() => router.back()}
         >
-          <MaterialCommunityIcons
-            name='arrow-left'
-            size={24}
-            color={theme.text}
-            style={{ marginRight: 8 }}
-          />
           <Text
-            style={{ color: theme.text }}
+            style={{ color: COLORS.light.text }}
             className='text-lg font-medium'
           >
             Gym Facilities
@@ -141,7 +175,7 @@ export default function GymFacilitiesScreen() {
         {/* Facilities Selection */}
         <View className='mb-8'>
           <Text
-            style={{ color: theme.text }}
+            style={{ color: COLORS.light.text }}
             className='text-lg font-bold mb-4'
           >
             Available Facilities
@@ -155,12 +189,12 @@ export default function GymFacilitiesScreen() {
                   formData.facilities.includes(facility) ? 'bg-yellow-400' : 'bg-transparent'
                 }`}
                 style={{
-                  borderColor: theme.primary,
+                  borderColor: COLORS.light.primary,
                 }}
               >
                 <Text
                   style={{
-                    color: formData.facilities.includes(facility) ? '#000' : theme.text,
+                    color: formData.facilities.includes(facility) ? '#000' : COLORS.light.text,
                   }}
                 >
                   {facility}
@@ -173,7 +207,7 @@ export default function GymFacilitiesScreen() {
         {/* Operating Hours */}
         <View className='mb-8'>
           <Text
-            style={{ color: theme.text }}
+            style={{ color: COLORS.light.text }}
             className='text-lg font-bold mb-4'
           >
             Operating Hours
@@ -182,32 +216,46 @@ export default function GymFacilitiesScreen() {
             <View
               key={day}
               className='flex-row items-center justify-between py-4 border-b'
-              style={{ borderColor: theme.surfaceHighlight }}
+              style={{ borderColor: COLORS.light.surfaceHighlight }}
             >
               <Text
-                style={{ color: theme.text }}
+                style={{ color: COLORS.light.text }}
                 className='text-base'
               >
                 {day}
               </Text>
               <View className='flex-row items-center'>
-                <TouchableOpacity className='bg-gray-100 px-4 py-2 rounded-lg'>
-                  <Text>09:00 AM</Text>
+                <TouchableOpacity
+                  className='bg-gray-100 px-4 py-2 rounded-lg'
+                  onPress={() => showPicker(day, 'open')}
+                >
+                  <Text>{formData.operatingHours[day]?.open || '09:00 AM'}</Text>
                 </TouchableOpacity>
                 <Text
-                  style={{ color: theme.text }}
+                  style={{ color: COLORS.light.text }}
                   className='mx-2'
                 >
                   to
                 </Text>
-                <TouchableOpacity className='bg-gray-100 px-4 py-2 rounded-lg'>
-                  <Text>10:00 PM</Text>
+                <TouchableOpacity
+                  className='bg-gray-100 px-4 py-2 rounded-lg'
+                  onPress={() => showPicker(day, 'close')}
+                >
+                  <Text>{formData.operatingHours[day]?.close || '10:00 PM'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
           ))}
         </View>
       </ScrollView>
+
+      {/* Time Picker */}
+      <DateTimePickerModal
+        isVisible={isPickerVisible}
+        mode='time'
+        onConfirm={handleConfirm}
+        onCancel={hidePicker}
+      />
 
       {/* Next Button */}
       <View className='p-6'>
