@@ -133,8 +133,11 @@ export default function RegisterMemberScreen() {
           return;
         }
 
-        // Navigate to success screen or dashboard
-        router.push('/member-dashboard');
+        // After successful profile creation
+        if (!memberError) {
+          // Redirect to member dashboard
+          router.replace('/(auth)/(member)/dashboard');
+        }
       } catch (error) {
         console.error('Unexpected error:', error);
         alert('An unexpected error occurred. Please try again.');

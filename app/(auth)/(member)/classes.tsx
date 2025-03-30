@@ -9,6 +9,7 @@ import {
 import { COLORS } from '@/constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Screen from '@/components/ui/Screen';
 
 const dummyClasses = [
   {
@@ -37,9 +38,7 @@ export default function ClassesScreen() {
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
+    <Screen scrollable>
       {/* Header */}
       <View className='p-6'>
         <Text
@@ -119,6 +118,6 @@ export default function ClassesScreen() {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 }

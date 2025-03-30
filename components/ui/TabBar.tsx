@@ -97,7 +97,7 @@ export default function TabBar({ state, descriptors, navigation }: TabBarProps) 
               {options.tabBarIcon?.({
                 focused: isFocused,
                 color: isFocused ? '#151312' : theme.textSecondary,
-                size: 25,
+                size: 26,
               })}
             </Animated.View>
             <Animated.Text
@@ -115,37 +115,48 @@ export default function TabBar({ state, descriptors, navigation }: TabBarProps) 
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
-    marginHorizontal: 26,
-    marginVertical: 5,
-    height: 70,
+    marginHorizontal: 20,
+    marginVertical: 15,
+    height: 72,
     borderRadius: 30,
     position: 'absolute',
-    bottom: 10,
+    bottom: 12,
     left: 0,
     right: 0,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
   },
   tabItem: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    bottom: 5,
+    marginTop: -10
   },
   activeBackground: {
     position: 'absolute',
     width: '55%',
-    height: '55%',
-    borderRadius: 35,
+    height: '50%',
+    borderRadius: 10,
   },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 25,
+    height: 25,
+    borderRadius: 10,
   },
   label: {
     fontSize: 9,
     fontWeight: '600',
     position: 'absolute',
-    bottom: -2,
+    top: 65,  
     left: 0,
     right: 0,
     textAlign: 'center',

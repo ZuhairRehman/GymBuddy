@@ -137,7 +137,7 @@ export default function RegisterTrainerScreen() {
         }
 
         // Navigate to success screen or dashboard
-        router.push('/trainer-dashboard');
+        router.push('/(trainer)/dashboard');
       } catch (error) {
         console.error('Unexpected error:', error);
         alert('An unexpected error occurred. Please try again.');
@@ -280,7 +280,7 @@ export default function RegisterTrainerScreen() {
             children='Create Account'
             size='lg'
             onPress={handleSubmit}
-            loading={loading}
+            isLoading={loading}
           />
         </View>
       </KeyboardAvoidingView>

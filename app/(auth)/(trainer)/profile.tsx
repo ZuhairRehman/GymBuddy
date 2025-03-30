@@ -1,4 +1,5 @@
-import { View, Text, useColorScheme, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import { useColorScheme } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Screen from '@/components/ui/Screen';
@@ -6,59 +7,51 @@ import { supabase } from '@/lib/supabase/supabase';
 import { router } from 'expo-router';
 
 const dummyProfile = {
-  name: 'Rahul Sharma',
-  email: 'rahul.sharma@gmail.com',
+  name: 'Amit Kumar',
+  email: 'amit.kumar@gmail.com',
   phone: '+91 98765 43210',
-  membershipId: 'MEM001',
-  joinDate: '15 January 2024',
-  stats: {
-    workouts: '24',
-    classes: '12',
-    streak: '5 days',
-  },
-  goals: ['Weight Loss', 'Muscle Gain'],
+  trainerId: 'TR001',
+  joinDate: '10 January 2024',
+  specializations: ['Weight Training', 'CrossFit', 'HIIT'],
+  yearsExperience: '5+ years',
 };
 
 const menuItems = [
   { icon: 'account-edit', label: 'Edit Profile', route: 'edit-profile' },
-  { icon: 'file-document', label: 'Documents', route: 'documents' },
+  { icon: 'certificate', label: 'Certifications', route: 'certifications' },
   { icon: 'bell-outline', label: 'Notifications', route: 'notifications' },
-  { icon: 'help-circle', label: 'Help & Support', route: 'support' },
   { icon: 'cog', label: 'Settings', route: 'settings' },
+  { icon: 'help-circle', label: 'Help & Support', route: 'support' },
   { icon: 'logout', label: 'Logout', route: 'logout' },
 ];
 
-const handleSignOut = async () => {
-  Alert.alert(
-    'Sign Out',
-    'Are you sure you want to sign out?',
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Sign Out',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-            router.replace('/login');
-          } catch (error) {
-            console.error('Error signing out:', error);
-            Alert.alert('Error', 'Failed to sign out. Please try again.');
-          }
-        },
-      },
-    ],
-    { cancelable: true },
-  );
-};
-
-export default function ProfileScreen() {
+export default function TrainerProfile() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
+
+  const handleSignOut = async () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await supabase.auth.signOut();
+              router.replace('/login');
+            } catch (error) {
+              console.error('Error signing out:', error);
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   return (
     <Screen scrollable>
@@ -80,46 +73,22 @@ export default function ProfileScreen() {
           style={{ color: theme.textSecondary }}
           className='text-base mb-4'
         >
-          Member ID: {dummyProfile.membershipId}
+          Trainer ID: {dummyProfile.trainerId}
         </Text>
       </View>
 
-      {/* Stats */}
-      <View className='mx-6 flex-row justify-between mb-6'>
-        {Object.entries(dummyProfile.stats).map(([key, value]) => (
-          <View
-            key={key}
-            className='items-center p-4 rounded-xl flex-1 mx-2'
-            style={{ backgroundColor: theme.surface }}
-          >
-            <Text
-              style={{ color: theme.primary }}
-              className='text-lg font-bold mb-1'
-            >
-              {value}
-            </Text>
-            <Text
-              style={{ color: theme.textSecondary }}
-              className='text-xs capitalize'
-            >
-              {key}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Goals */}
+      {/* Specializations */}
       <View className='mx-6 mb-6'>
         <Text
           style={{ color: theme.text }}
           className='text-base font-medium mb-3'
         >
-          Fitness Goals
+          Specializations
         </Text>
         <View className='flex-row flex-wrap gap-2'>
-          {dummyProfile.goals.map(goal => (
+          {dummyProfile.specializations.map(spec => (
             <View
-              key={goal}
+              key={spec}
               className='px-3 py-1 rounded-full'
               style={{ backgroundColor: theme.surfaceHighlight }}
             >
@@ -127,7 +96,7 @@ export default function ProfileScreen() {
                 style={{ color: theme.primary }}
                 className='text-sm'
               >
-                {goal}
+                {spec}
               </Text>
             </View>
           ))}

@@ -4,7 +4,7 @@
  * Includes: Dashboard, Members, Analytics, Billing, and Profile tabs
  */
 
-import { Tabs } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { COLORS } from '@/constants/theme';
@@ -29,6 +29,7 @@ export default function OwnerLayout() {
         style={colorScheme === 'dark' ? 'light' : 'dark'}
         backgroundColor={theme.background}
       />
+
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -101,6 +102,7 @@ export default function OwnerLayout() {
             ),
           }}
         />
+        
       </Tabs>
     </>
   );

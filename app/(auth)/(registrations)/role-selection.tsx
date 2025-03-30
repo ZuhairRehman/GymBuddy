@@ -69,7 +69,11 @@ export default function RoleSelectionScreen() {
       }
 
       // Navigate to the role-specific registration flow
-      router.push(`/(registrations)/register-${roleId}`);
+     if (roleId === 'owner') {
+       router.push('/(auth)/(registrations)/(register-owner)'); // Navigate to owner group
+     } else {
+       router.push(`/(auth)/(registrations)/register-${roleId}`); // Navigate to individual screens
+     }
     } catch (error) {
       console.error('Role selection error:', error);
       alert('An unexpected error occurred. Please try again.');

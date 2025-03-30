@@ -38,7 +38,7 @@ export default function GymPricingScreen() {
   };
 
   const handleNext = () => {
-    router.push('/(auth)/register-owner/gym-capacity');
+    router.push('/(auth)/(register-owner)/gym-capacity');
   };
 
   return (

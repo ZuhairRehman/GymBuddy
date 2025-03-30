@@ -63,73 +63,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    /**
-     * Initialize authentication state from SecureStore
-     * Sets up auth state listener for session management
-     */
-    const initializeAuth = async () => {
+    const setupAuth = async () => {
       try {
-        setAuthState(prev => ({ ...prev, isLoading: true }));
-
-        // Fetch session from SecureStore
-        const storedSession = await SecureStore.getItemAsync('supabase-session');
-        if (storedSession) {
-          const session = JSON.parse(storedSession) as Session;
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
           setAuthState({
             user: session.user,
             session,
             isLoading: false,
             error: null,
           });
-        } else {
+        }
+      } catch (error) {
+        console.error('Auth setup error:', error);
+      }
+    };
+
+    setupAuth();
+
+    // Update the onAuthStateChange handler
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setAuthState(prev => ({ ...prev, isLoading: true }));
+
+      if (session) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
           setAuthState({
-            user: null,
-            session: null,
+            user: session.user,
+            session,
             isLoading: false,
             error: null,
           });
-          router.replace('/login'); // Redirect to login if no session
+
+          // Delay navigation to ensure root layout is mounted
+          setTimeout(() => {
+            if (profile?.role) {
+              if (event === 'SIGNED_IN') {
+                router.replace(`/(${profile.role})/dashboard`);
+              }
+            }
+          }, 0);
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+          setAuthState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: 'Failed to fetch user profile',
+          }));
         }
-
-        // Set up auth state change listener
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-          if (currentSession) {
-            await SecureStore.setItemAsync('supabase-session', JSON.stringify(currentSession));
-            setAuthState({
-              user: currentSession.user,
-              session: currentSession,
-              isLoading: false,
-              error: null,
-            });
-          } else {
-            await SecureStore.deleteItemAsync('supabase-session');
-            setAuthState({
-              user: null,
-              session: null,
-              isLoading: false,
-              error: null,
-            });
-            router.replace('/login'); // Redirect to login on sign-out
-          }
-        });
-
-        return () => {
-          subscription.unsubscribe();
-        };
-      } catch (error) {
-        console.error('Error initializing auth:', error);
+      } else {
         setAuthState({
           user: null,
           session: null,
           isLoading: false,
-          error: 'Failed to initialize authentication.',
+          error: null,
         });
-      }
-    };
 
-    initializeAuth();
+        // Delay navigation to ensure root layout is mounted
+        setTimeout(() => {
+          if (event === 'SIGNED_OUT') {
+            router.replace('/(welcome-screens)');
+          }
+        }, 0);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   /**

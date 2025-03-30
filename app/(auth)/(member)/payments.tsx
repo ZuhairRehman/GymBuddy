@@ -1,15 +1,7 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  useColorScheme,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import { View, Text, useColorScheme, TouchableOpacity, Image } from 'react-native';
 import { COLORS } from '@/constants/theme';
-import { StatusBar } from 'expo-status-bar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Screen from '@/components/ui/Screen';
 
 const dummyData = {
   membershipDetails: {
@@ -48,9 +40,7 @@ export default function PaymentsScreen() {
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
+    <Screen scrollable>
       {/* Header */}
       <View className='p-6'>
         <Text
@@ -61,7 +51,7 @@ export default function PaymentsScreen() {
         </Text>
       </View>
 
-      <ScrollView className='flex-1'>
+      <View className='flex-1'>
         {/* Current Membership Card */}
         <View
           className='mx-6 mb-6 p-4 rounded-xl'
@@ -161,7 +151,7 @@ export default function PaymentsScreen() {
             </View>
           ))}
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </Screen>
   );
 }

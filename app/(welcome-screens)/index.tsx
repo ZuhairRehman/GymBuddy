@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { COLORS } from '../../constants/theme';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { AppStorage } from '@/lib/storage/appStorage';
 
 const { width } = Dimensions.get('window');
 
@@ -63,7 +64,7 @@ const OnboardingScreen = () => {
                 .padStart(2, '0')}`}
             </Text>
             {currentIndex !== slides.length - 1 && (
-              <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+              <TouchableOpacity onPress={() => router.push('/login')}>
                 <Text
                   style={{ color: theme.textSecondary }}
                   className='text-base font-medium'
@@ -112,14 +113,16 @@ const OnboardingScreen = () => {
     );
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex < slides.length - 1) {
       flatListRef.current?.scrollToIndex({
         index: currentIndex + 1,
         animated: true,
       });
     } else {
-      router.push('login');
+      // Mark app as launched and navigate to login
+      await AppStorage.setAppLaunched();
+      router.push('/(auth)/login');
     }
   };
 

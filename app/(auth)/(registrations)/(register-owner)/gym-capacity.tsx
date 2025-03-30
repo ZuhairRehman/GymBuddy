@@ -25,7 +25,7 @@ export default function GymCapacityScreen() {
 
   const handleSubmit = () => {
     // Navigate to owner dashboard or confirmation screen
-    router.push('/(owner)/[id]');
+    router.push('/(owner)/dashboard');
   };
 
   return (

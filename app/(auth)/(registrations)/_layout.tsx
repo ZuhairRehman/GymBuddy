@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 export default function RegistrationFormsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name='index' />
       <Stack.Screen name='role-selection' />
       <Stack.Screen name='(register-owner)' />
       <Stack.Screen name='register-member' />

@@ -1,14 +1,8 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  useColorScheme,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, useColorScheme, ScrollView, TouchableOpacity } from 'react-native';
 import { COLORS } from '@/constants/theme';
-import { StatusBar } from 'expo-status-bar';
+// Removed unused StatusBar import
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Screen from '@/components/ui/Screen';
 
 const dummyWorkouts = [
   {
@@ -31,9 +25,7 @@ export default function WorkoutsScreen() {
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
+    <Screen scrollable>
       {/* Header */}
       <View className='p-6 flex-row justify-between items-center'>
         <Text
@@ -100,7 +92,7 @@ export default function WorkoutsScreen() {
 
             <View
               className='flex-row mt-3 pt-3 border-t'
-              style={{ borderColor: theme.border }}
+              style={{ borderColor: theme.surfaceHighlight }}
             >
               <View className='flex-row items-center mr-4'>
                 <MaterialCommunityIcons
@@ -132,6 +124,6 @@ export default function WorkoutsScreen() {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 }

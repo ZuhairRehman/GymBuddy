@@ -142,7 +142,7 @@ export default function GymFacilitiesScreen() {
       // }
 
       // Navigate to the next step in the registration process
-      router.push('/(auth)/register-owner/gym-pricing');
+      router.push('/(auth)/(register-owner)/gym-pricing');
     } catch (error) {
       console.error('Unexpected error:', error);
       alert('An unexpected error occurred. Please try again.');

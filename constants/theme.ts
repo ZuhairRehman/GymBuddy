@@ -6,6 +6,10 @@ export const COLORS = {
     textSecondary: 'rgba(45, 52, 54, 0.6)', // Secondary text
     surface: '#FFFFFF', // White surface
     surfaceHighlight: 'rgba(45, 52, 54, 0.05)', // Surface highlight
+    //primary: '#006494' ,
+    success: '#4ECDC4',
+    warning: '#FFE66D',
+    danger: '#FF6B6B',
   },
   dark: {
     primary: '#FFD60A', // Yellow accent

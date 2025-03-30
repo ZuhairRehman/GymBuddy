@@ -1,7 +1,12 @@
-import { View, Text, ScrollView, SafeAreaView, useColorScheme } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useColorScheme, Dimensions } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+
+const { width } = Dimensions.get('window');
+const cardWidth = (width - 48 - 24) / 4; // Accounting for 
 
 const dummyData = {
   memberName: 'Rahul Sharma',
@@ -26,34 +31,22 @@ export default function MemberDashboard() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-
+      
       <ScrollView className='flex-1'>
         {/* Header Section */}
         <View className='p-6'>
-          <Text
-            style={{ color: theme.text }}
-            className='text-2xl font-bold mb-2'
-          >
+          <Text style={{ color: theme.text }} className='text-2xl font-bold mb-2'>
             Welcome back,
           </Text>
-          <Text
-            style={{ color: theme.primary }}
-            className='text-lg font-medium'
-          >
+          <Text style={{ color: theme.primary }} className='text-lg font-medium'>
             {dummyData.memberName}
           </Text>
         </View>
 
         {/* Membership Status Card */}
-        <View
-          className='mx-6 p-4 rounded-xl mb-4'
-          style={{ backgroundColor: theme.surface }}
-        >
+        <View className='mx-6 p-4 rounded-xl mb-4' style={{ backgroundColor: theme.surface }}>
           <View className='flex-row justify-between items-center mb-3'>
-            <Text
-              style={{ color: theme.text }}
-              className='text-base font-medium'
-            >
+            <Text style={{ color: theme.text }} className='text-base font-medium'>
               Membership Status
             </Text>
             <View className='bg-green-500/20 px-3 py-1 rounded-full'>
@@ -61,55 +54,33 @@ export default function MemberDashboard() {
             </View>
           </View>
           <View className='flex-row justify-between items-center'>
-            <Text
-              style={{ color: theme.textSecondary }}
-              className='text-sm'
-            >
+            <Text style={{ color: theme.textSecondary }} className='text-sm'>
               {dummyData.membershipType}
             </Text>
-            <Text
-              style={{ color: theme.textSecondary }}
-              className='text-sm'
-            >
+            <Text style={{ color: theme.textSecondary }} className='text-sm'>
               Expires: {dummyData.expiryDate}
             </Text>
           </View>
         </View>
 
         {/* Gym Traffic Card */}
-        <View
-          className='mx-6 p-4 rounded-xl mb-4'
-          style={{ backgroundColor: theme.surface }}
-        >
+        <View className='mx-6 p-4 rounded-xl mb-4' style={{ backgroundColor: theme.surface }}>
           <View className='flex-row items-center justify-between'>
             <View>
-              <Text
-                style={{ color: theme.text }}
-                className='text-base font-medium mb-1'
-              >
+              <Text style={{ color: theme.text }} className='text-base font-medium mb-1'>
                 Current Gym Traffic
               </Text>
-              <Text
-                style={{ color: theme.textSecondary }}
-                className='text-sm'
-              >
+              <Text style={{ color: theme.textSecondary }} className='text-sm'>
                 {dummyData.todayTraffic}
               </Text>
             </View>
-            <MaterialCommunityIcons
-              name='account-group'
-              size={24}
-              color={theme.primary}
-            />
+            <MaterialCommunityIcons name='account-group' size={24} color={theme.primary} />
           </View>
         </View>
 
         {/* Quick Actions */}
         <View className='mx-6 mb-4'>
-          <Text
-            style={{ color: theme.text }}
-            className='text-lg font-medium mb-3'
-          >
+          <Text style={{ color: theme.text }} className='text-lg font-medium mb-3'>
             Quick Actions
           </Text>
           <View className='flex-row justify-between'>
@@ -124,15 +95,8 @@ export default function MemberDashboard() {
                 className='items-center p-4 rounded-xl'
                 style={{ backgroundColor: theme.surface }}
               >
-                <MaterialCommunityIcons
-                  name={action.icon}
-                  size={24}
-                  color={theme.primary}
-                />
-                <Text
-                  style={{ color: theme.textSecondary }}
-                  className='text-xs mt-2'
-                >
+                <MaterialCommunityIcons name={action.icon} size={24} color={theme.primary} />
+                <Text style={{ color: theme.textSecondary }} className='text-xs mt-2'>
                   {action.label}
                 </Text>
               </View>
@@ -141,70 +105,38 @@ export default function MemberDashboard() {
         </View>
 
         {/* Upcoming Class */}
-        <View
-          className='mx-6 p-4 rounded-xl mb-4'
-          style={{ backgroundColor: theme.surface }}
-        >
-          <Text
-            style={{ color: theme.text }}
-            className='text-base font-medium mb-3'
-          >
+        <View className='mx-6 p-4 rounded-xl mb-4' style={{ backgroundColor: theme.surface }}>
+          <Text style={{ color: theme.text }} className='text-base font-medium mb-3'>
             Next Class
           </Text>
           <View className='flex-row items-center justify-between'>
             <View>
-              <Text
-                style={{ color: theme.text }}
-                className='text-sm font-medium'
-              >
+              <Text style={{ color: theme.text }} className='text-sm font-medium'>
                 {dummyData.upcomingClass.name}
               </Text>
-              <Text
-                style={{ color: theme.textSecondary }}
-                className='text-xs mt-1'
-              >
+              <Text style={{ color: theme.textSecondary }} className='text-xs mt-1'>
                 {dummyData.upcomingClass.time}
               </Text>
             </View>
-            <MaterialCommunityIcons
-              name='chevron-right'
-              size={24}
-              color={theme.textSecondary}
-            />
+            <MaterialCommunityIcons name='chevron-right' size={24} color={theme.textSecondary} />
           </View>
         </View>
 
         {/* Last Workout */}
-        <View
-          className='mx-6 p-4 rounded-xl mb-6'
-          style={{ backgroundColor: theme.surface }}
-        >
-          <Text
-            style={{ color: theme.text }}
-            className='text-base font-medium mb-3'
-          >
+        <View className='mx-6 p-4 rounded-xl mb-6' style={{ backgroundColor: theme.surface }}>
+          <Text style={{ color: theme.text }} className='text-base font-medium mb-3'>
             Last Workout
           </Text>
           <View className='flex-row items-center justify-between'>
             <View>
-              <Text
-                style={{ color: theme.text }}
-                className='text-sm font-medium'
-              >
+              <Text style={{ color: theme.text }} className='text-sm font-medium'>
                 {dummyData.lastWorkout.name}
               </Text>
-              <Text
-                style={{ color: theme.textSecondary }}
-                className='text-xs mt-1'
-              >
+              <Text style={{ color: theme.textSecondary }} className='text-xs mt-1'>
                 {dummyData.lastWorkout.date} • {dummyData.lastWorkout.duration}
               </Text>
             </View>
-            <MaterialCommunityIcons
-              name='chevron-right'
-              size={24}
-              color={theme.textSecondary}
-            />
+            <MaterialCommunityIcons name='chevron-right' size={24} color={theme.textSecondary} />
           </View>
         </View>
       </ScrollView>

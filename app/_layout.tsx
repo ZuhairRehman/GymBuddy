@@ -28,12 +28,8 @@ export default function RootLayout() {
     // Add your custom fonts here if needed
   });
 
-  /**
-   * Handle font loading and splash screen
-   */
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      // Hide splash screen once fonts are loaded or if there's an error
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
@@ -43,17 +39,21 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name='(welcome-screens)'
-        options={{ headerShown: false }}
-      />
-     
+    <AuthProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name='(welcome-screens)'
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name='(auth)'
           options={{ headerShown: false }}
         />
-    
-    </Stack>
+        <Stack.Screen
+          name='index'
+          options={{ headerShown: false }}
+        />
+      </Stack>
+    </AuthProvider>
   );
 }

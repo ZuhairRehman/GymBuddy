@@ -5,7 +5,7 @@ import { COLORS } from '@/constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import TabBar from '@/components/ui/TabBar';
 
-export default function MemberLayout() {
+export default function TrainerLayout() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
@@ -36,12 +36,12 @@ export default function MemberLayout() {
           }}
         />
         <Tabs.Screen
-          name='workouts'
+          name='clients'
           options={{
-            title: 'Workouts',
+            title: 'Clients',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
-                name='dumbbell'
+                name='account-group'
                 size={size}
                 color={color}
               />
@@ -49,9 +49,9 @@ export default function MemberLayout() {
           }}
         />
         <Tabs.Screen
-          name='classes'
+          name='schedule'
           options={{
-            title: 'Classes',
+            title: 'Schedule',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
                 name='calendar-clock'
@@ -62,12 +62,12 @@ export default function MemberLayout() {
           }}
         />
         <Tabs.Screen
-          name='payments'
+          name='workouts'
           options={{
-            title: 'Payments',
+            title: 'Workouts',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
-                name='wallet'
+                name='dumbbell'
                 size={size}
                 color={color}
               />

@@ -17,7 +17,7 @@ import { Stack } from 'expo-router';
 export default function RegisterOwnerLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name='register-owner' />
+      <Stack.Screen name='index' />
       <Stack.Screen name='gym-details' />
       <Stack.Screen name='gym-facilities' />
       <Stack.Screen name='gym-pricing' />

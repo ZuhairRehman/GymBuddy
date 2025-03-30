@@ -90,7 +90,7 @@ export default function PersonalInfoScreen() {
         }
 
         // Navigate to the next step in the registration process
-        router.push('/(registrations)/register-owner/gym-details');
+        router.push('/(registrations)/(register-owner)/gym-details');
       } catch (error) {
         console.error('Profile handling error:', error);
         setErrors(prev => ({ ...prev, general: 'An unexpected error occurred' }));

@@ -127,7 +127,7 @@ export default function GymDetailsScreen() {
         }
 
         // Navigate to the next step in the registration process
-        router.push('/(auth)/(registrations)/register-owner/gym-facilities');
+        router.push('/(auth)/(registrations)/(register-owner)/gym-facilities');
       } catch (error) {
         console.error('Unexpected error:', error);
         alert('An unexpected error occurred. Please try again.');
