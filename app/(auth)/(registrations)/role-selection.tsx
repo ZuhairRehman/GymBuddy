@@ -1,3 +1,4 @@
+// Import necessary components and libraries
 import {
   View,
   Text,
@@ -15,6 +16,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import RoleCard from '@/components/ui/RoleCard';
 import { supabase } from '@/lib/supabase/supabase';
 
+// Define available roles for registration
 const roles = [
   {
     id: 'owner',
@@ -43,6 +45,7 @@ export default function RoleSelectionScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
+  // Handle role selection and navigate to the appropriate registration flow
   const handleRoleSelect = async (roleId: string) => {
     try {
       // Get the current session
@@ -69,11 +72,11 @@ export default function RoleSelectionScreen() {
       }
 
       // Navigate to the role-specific registration flow
-     if (roleId === 'owner') {
-       router.push('/(auth)/(registrations)/(register-owner)'); // Navigate to owner group
-     } else {
-       router.push(`/(auth)/(registrations)/register-${roleId}`); // Navigate to individual screens
-     }
+      if (roleId === 'owner') {
+        router.push('/(auth)/(registrations)/(register-owner)'); // Navigate to owner group
+      } else {
+        router.push(`/(auth)/(registrations)/register-${roleId}`); // Navigate to individual screens
+      }
     } catch (error) {
       console.error('Role selection error:', error);
       alert('An unexpected error occurred. Please try again.');
@@ -85,9 +88,10 @@ export default function RoleSelectionScreen() {
       className='flex-1'
       style={{ backgroundColor: theme.background }}
     >
+      {/* Status bar styling */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
-      {/* Header with Logo */}
+      {/* Header with logo and instructions */}
       <View className='items-center pt-4 mt-10'>
         <View className='w-48 h-48 items-center justify-center mb-2'>
           <Image
@@ -113,7 +117,7 @@ export default function RoleSelectionScreen() {
         </Text>
       </View>
 
-      {/* Role Selection */}
+      {/* Role selection cards */}
       <ScrollView
         className='flex-1 px-4'
         showsVerticalScrollIndicator={false}
@@ -127,7 +131,7 @@ export default function RoleSelectionScreen() {
         ))}
       </ScrollView>
 
-      {/* Back to Login */}
+      {/* Back to login button */}
       <View className='p-4'>
         <TouchableOpacity
           className='flex-row justify-center items-center'

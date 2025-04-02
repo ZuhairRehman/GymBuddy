@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import {
   View,
   Text,
@@ -14,6 +15,7 @@ import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import UiButton from '@/components/ui/UiButton';
 
+// ForgotPasswordScreen component allows users to request a password reset link
 export default function ForgotPasswordScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
@@ -23,14 +25,16 @@ export default function ForgotPasswordScreen() {
       className='flex-1'
       style={{ backgroundColor: theme.background }}
     >
+      {/* Set the status bar style based on the theme */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className='flex-1'
       >
-        {/* Header */}
+        {/* Header Section */}
         <View className='p-6 mt-5'>
+          {/* Back button to navigate to the previous screen */}
           <TouchableOpacity
             className='flex-row items-center'
             onPress={() => router.back()}
@@ -41,7 +45,6 @@ export default function ForgotPasswordScreen() {
               color={theme.text}
               style={{ marginRight: 8 }}
             />
-
             <Text
               style={{ color: theme.text }}
               className='text-lg font-medium '
@@ -51,8 +54,9 @@ export default function ForgotPasswordScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Content */}
+        {/* Content Section */}
         <View className='flex-1 px-6'>
+          {/* Title and description */}
           <Text
             style={{ color: theme.text }}
             className='text-2xl font-bold mb-6'
@@ -66,7 +70,7 @@ export default function ForgotPasswordScreen() {
             Enter your email address below, and we'll send you a link to reset your password.
           </Text>
 
-          {/* Email Input */}
+          {/* Email input field */}
           <TextInput
             placeholder='Email'
             placeholderTextColor={theme.textSecondary}
@@ -78,7 +82,7 @@ export default function ForgotPasswordScreen() {
             }}
           />
 
-          {/* Submit Button */}
+          {/* Submit button */}
           <UiButton
             children='Send reset link'
             size='lg'

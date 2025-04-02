@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import React, { useState } from 'react';
 import {
   View,
@@ -32,6 +33,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
  * - Error handling with user feedback
  * - Seamless navigation to registration and password recovery
  */
+
+// LoginScreen component handles user authentication and login functionality
 export default function LoginScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
@@ -49,6 +52,7 @@ export default function LoginScreen() {
 
   /**
    * Validates form inputs
+   * Ensures email and password meet required criteria
    * @returns boolean indicating if form is valid
    */
   const validateForm = () => {
@@ -74,7 +78,7 @@ export default function LoginScreen() {
 
   /**
    * Handles login form submission
-   * Validates inputs and attempts authentication
+   * Attempts to authenticate the user with provided credentials
    */
   const handleLogin = async () => {
     setLoginError(null);
@@ -98,6 +102,7 @@ export default function LoginScreen() {
       className='flex-1'
       style={{ backgroundColor: theme.background }}
     >
+      {/* Set the status bar style based on the theme */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       <KeyboardAvoidingView
@@ -106,6 +111,7 @@ export default function LoginScreen() {
       >
         {/* Top Section with Logo */}
         <View className='flex-1 justify-center'>
+          {/* Display app logo */}
           <View className='items-center'>
             <View
               className='w-48 h-48 items-center justify-center mb-8'
@@ -134,6 +140,7 @@ export default function LoginScreen() {
         {/* Bottom Section with Form */}
         <View className='flex-1 px-6'>
           <View className='space-y-6'>
+            {/* Display login error if any */}
             {loginError && <Text className='text-red-500 text-sm text-center'>{loginError}</Text>}
 
             {/* Email Input */}

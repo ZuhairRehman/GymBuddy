@@ -41,7 +41,7 @@ export default function TrainerProfile() {
           onPress: async () => {
             try {
               await supabase.auth.signOut();
-              router.replace('/login');
+              router.replace('/(auth)/login/');
             } catch (error) {
               console.error('Error signing out:', error);
               Alert.alert('Error', 'Failed to sign out. Please try again.');

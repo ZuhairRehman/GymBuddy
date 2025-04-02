@@ -172,3 +172,223 @@ INSERT WITH CHECK (
     trainer_id = auth.uid()
     AND get_user_role() = 'trainer'
   );
+
+  -- Enable RLS on new tables (unchanged)
+DO $$
+BEGIN
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE relname = 'membership_plans') THEN
+    ALTER TABLE membership_plans ENABLE ROW LEVEL SECURITY;
+  END IF;
+  
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE relname = 'discounts') THEN
+    ALTER TABLE discounts ENABLE ROW LEVEL SECURITY;
+  END IF;
+  
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE relname = 'plan_discounts') THEN
+    ALTER TABLE plan_discounts ENABLE ROW LEVEL SECURITY;
+  END IF;
+  
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE relname = 'plan_facilities') THEN
+    ALTER TABLE plan_facilities ENABLE ROW LEVEL SECURITY;
+  END IF;
+  
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE relname = 'gym_capacity') THEN
+    ALTER TABLE gym_capacity ENABLE ROW LEVEL SECURITY;
+  END IF;
+  
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE relname = 'peak_hours_capacity') THEN
+    ALTER TABLE peak_hours_capacity ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
+
+-- Add comprehensive RLS policies for new tables
+DO $$
+BEGIN
+  -- Membership Plans Policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'membership_plans' AND policyname = 'Gym owners can manage their plans') THEN
+    CREATE POLICY "Gym owners can manage their plans" ON membership_plans 
+    FOR ALL USING (is_gym_owner(gym_id));
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'membership_plans' AND policyname = 'Trainers can view their gym plans') THEN
+    CREATE POLICY "Trainers can view their gym plans" ON membership_plans 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_trainers 
+        WHERE gym_id = membership_plans.gym_id 
+        AND trainer_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'membership_plans' AND policyname = 'Members can view their gym plans') THEN
+    CREATE POLICY "Members can view their gym plans" ON membership_plans 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_members 
+        WHERE gym_id = membership_plans.gym_id 
+        AND member_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  -- Discounts Policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discounts' AND policyname = 'Gym owners can manage their discounts') THEN
+    CREATE POLICY "Gym owners can manage their discounts" ON discounts 
+    FOR ALL USING (is_gym_owner(gym_id));
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'discounts' AND policyname = 'Trainers can view their gym discounts') THEN
+    CREATE POLICY "Trainers can view their gym discounts" ON discounts 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_trainers 
+        WHERE gym_id = discounts.gym_id 
+        AND trainer_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  -- Plan-Discounts Policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'plan_discounts' AND policyname = 'Gym owners can manage plan-discount relationships') THEN
+    CREATE POLICY "Gym owners can manage plan-discount relationships" ON plan_discounts 
+    FOR ALL USING (
+      EXISTS (SELECT 1 FROM membership_plans WHERE id = plan_id AND is_gym_owner(gym_id))
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'plan_discounts' AND policyname = 'Trainers can view plan-discount relationships') THEN
+    CREATE POLICY "Trainers can view plan-discount relationships" ON plan_discounts 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM membership_plans mp
+        JOIN gym_trainers gt ON mp.gym_id = gt.gym_id
+        WHERE mp.id = plan_discounts.plan_id
+        AND gt.trainer_id = auth.uid()
+        AND gt.status = 'active'
+      )
+    );
+  END IF;
+  
+  -- Plan-Facilities Policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'plan_facilities' AND policyname = 'Gym owners can manage plan-facility relationships') THEN
+    CREATE POLICY "Gym owners can manage plan-facility relationships" ON plan_facilities 
+    FOR ALL USING (
+      EXISTS (SELECT 1 FROM membership_plans WHERE id = plan_id AND is_gym_owner(gym_id))
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'plan_facilities' AND policyname = 'Trainers can view plan-facility relationships') THEN
+    CREATE POLICY "Trainers can view plan-facility relationships" ON plan_facilities 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM membership_plans mp
+        JOIN gym_trainers gt ON mp.gym_id = gt.gym_id
+        WHERE mp.id = plan_facilities.plan_id
+        AND gt.trainer_id = auth.uid()
+        AND gt.status = 'active'
+      )
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'plan_facilities' AND policyname = 'Members can view their plan facilities') THEN
+    CREATE POLICY "Members can view their plan facilities" ON plan_facilities 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_members gm
+        JOIN membership_plans mp ON gm.gym_id = mp.gym_id
+        WHERE mp.id = plan_facilities.plan_id
+        AND gm.member_id = auth.uid()
+        AND gm.membership_plan_id = mp.id
+      )
+    );
+  END IF;
+  
+  -- Gym Capacity Policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'gym_capacity' AND policyname = 'Gym owners can manage capacity') THEN
+    CREATE POLICY "Gym owners can manage capacity" ON gym_capacity 
+    FOR ALL USING (is_gym_owner(gym_id));
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'gym_capacity' AND policyname = 'Trainers can view their gym capacity') THEN
+    CREATE POLICY "Trainers can view their gym capacity" ON gym_capacity 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_trainers 
+        WHERE gym_id = gym_capacity.gym_id 
+        AND trainer_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'gym_capacity' AND policyname = 'Members can view their gym capacity') THEN
+    CREATE POLICY "Members can view their gym capacity" ON gym_capacity 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_members 
+        WHERE gym_id = gym_capacity.gym_id 
+        AND member_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  -- Peak Hours Capacity Policies
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'peak_hours_capacity' AND policyname = 'Gym owners can manage peak hours') THEN
+    CREATE POLICY "Gym owners can manage peak hours" ON peak_hours_capacity 
+    FOR ALL USING (is_gym_owner(gym_id));
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'peak_hours_capacity' AND policyname = 'Trainers can view peak hours') THEN
+    CREATE POLICY "Trainers can view peak hours" ON peak_hours_capacity 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_trainers 
+        WHERE gym_id = peak_hours_capacity.gym_id 
+        AND trainer_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'peak_hours_capacity' AND policyname = 'Members can view peak hours') THEN
+    CREATE POLICY "Members can view peak hours" ON peak_hours_capacity 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_members 
+        WHERE gym_id = peak_hours_capacity.gym_id 
+        AND member_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  -- Facilities Policies (for completeness, though table existed before)
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'gym_facilities' AND policyname = 'Trainers can view facilities') THEN
+    CREATE POLICY "Trainers can view facilities" ON gym_facilities 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_trainers 
+        WHERE gym_id = gym_facilities.gym_id 
+        AND trainer_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+  
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'gym_facilities' AND policyname = 'Members can view facilities') THEN
+    CREATE POLICY "Members can view facilities" ON gym_facilities 
+    FOR SELECT USING (
+      EXISTS (
+        SELECT 1 FROM gym_members 
+        WHERE gym_id = gym_facilities.gym_id 
+        AND member_id = auth.uid()
+        AND status = 'active'
+      )
+    );
+  END IF;
+END $$;

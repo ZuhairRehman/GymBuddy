@@ -106,9 +106,8 @@ export default function OwnerProfile() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const { error } = await supabase.auth.signOut();
-              if (error) throw error;
-              router.replace('/login');
+              await supabase.auth.signOut();
+              router.replace('/(auth)/login/');
             } catch (error) {
               console.error('Error signing out:', error);
               Alert.alert('Error', 'Failed to sign out. Please try again.');

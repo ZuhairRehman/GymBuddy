@@ -6,6 +6,7 @@ import {
   useColorScheme,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { StatusBar } from 'expo-status-bar';
@@ -13,39 +14,185 @@ import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import RegistrationInput, { InputField } from '@/components/ui/RegistrationInput';
 import UiButton from '@/components/ui/UiButton';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const planDurations = ['1 Month', '3 Months', '6 Months', '12 Months'];
+interface PlanType {
+  id: string;
+  name: string;
+  duration: string;
+  basePrice: string;
+  joiningFee: string;
+}
+
+interface DiscountType {
+  id: string;
+  name: string;
+  percentage: string;
+}
+
+const PlanPreviewCard = ({ plan, discounts }: { plan: PlanType; discounts: DiscountType[] }) => {
+  const theme = COLORS[useColorScheme() === 'dark' ? 'dark' : 'light'];
+  const basePrice = parseInt(plan.basePrice);
+  const joiningFee = parseInt(plan.joiningFee) || 0;
+
+  return (
+    <Animated.View
+      entering={FadeInDown}
+      className='bg-white dark:bg-gray-800 rounded-2xl p-4 mb-4 shadow-sm'
+    >
+      <LinearGradient
+        colors={[theme.primary + '20', 'transparent']}
+        className='absolute top-0 left-0 right-0 h-24 rounded-t-2xl'
+      />
+
+      <View className='mb-4'>
+        <Text
+          className='text-xl font-bold mb-1'
+          style={{ color: theme.text }}
+        >
+          {plan.name}
+        </Text>
+        <Text
+          className='text-sm'
+          style={{ color: theme.textSecondary }}
+        >
+          {plan.duration}
+        </Text>
+      </View>
+
+      <View className='flex-row items-baseline mb-4'>
+        <Text
+          className='text-3xl font-bold'
+          style={{ color: theme.primary }}
+        >
+          ₹{basePrice}
+        </Text>
+        <Text
+          className='text-sm ml-1'
+          style={{ color: theme.textSecondary }}
+        >
+          /month
+        </Text>
+      </View>
+
+      {joiningFee > 0 && (
+        <View className='flex-row items-center mb-4'>
+          <MaterialCommunityIcons
+            name='information'
+            size={16}
+            color={theme.textSecondary}
+          />
+          <Text
+            className='text-sm ml-2'
+            style={{ color: theme.textSecondary }}
+          >
+            One-time joining fee: ₹{joiningFee}
+          </Text>
+        </View>
+      )}
+
+      {discounts.length > 0 && (
+        <View className='border-t border-gray-200 dark:border-gray-700 pt-4 mt-4'>
+          <Text
+            className='text-sm font-medium mb-2'
+            style={{ color: theme.text }}
+          >
+            Available Discounts
+          </Text>
+          {discounts.map(discount => (
+            <View
+              key={discount.id}
+              className='flex-row items-center mb-2'
+            >
+              <MaterialCommunityIcons 
+                name='tag-outline'
+                size={16}
+                color={theme.primary}
+              />
+              <Text
+                className='text-sm ml-2'
+                style={{ color: theme.textSecondary }}
+              >
+                {discount.name}: {discount.percentage}% off
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </Animated.View>
+  );
+};
 
 export default function GymPricingScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
-  const [formData, setFormData] = useState({
-    selectedDuration: '1 Month',
+  const [plans, setPlans] = useState<PlanType[]>([]);
+  const [discounts, setDiscounts] = useState<DiscountType[]>([]);
+  const [currentPlan, setCurrentPlan] = useState<PlanType>({
+    id: Date.now().toString(),
+    name: '',
+    duration: '1 Month',
     basePrice: '',
     joiningFee: '',
-    maxMembers: '',
-    additionalNotes: '',
-    studentDiscount: '',
-    corporateDiscount: '',
   });
 
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+  const [newDiscountName, setNewDiscountName] = useState('');
+  const [newDiscountPercentage, setNewDiscountPercentage] = useState('');
+
+  const planDurations = ['1 Month', '3 Months', '6 Months', '12 Months'];
+
+  const handleAddPlan = () => {
+    if (!currentPlan.name || !currentPlan.basePrice) {
+      Alert.alert('Missing Details', 'Please fill in plan name and base price');
+      return;
+    }
+    setPlans([...plans, currentPlan]);
+    setCurrentPlan({
+      id: Date.now().toString(),
+      name: '',
+      duration: '1 Month',
+      basePrice: '',
+      joiningFee: '',
+    });
+  };
+
+  const handleAddDiscount = () => {
+    if (!newDiscountName || !newDiscountPercentage) {
+      Alert.alert('Missing Details', 'Please fill in discount name and percentage');
+      return;
+    }
+    setDiscounts([
+      ...discounts,
+      {
+        id: Date.now().toString(),
+        name: newDiscountName,
+        percentage: newDiscountPercentage,
+      },
+    ]);
+    setNewDiscountName('');
+    setNewDiscountPercentage('');
+  };
+
+  const handleDeletePlan = (id: string) => {
+    setPlans(plans.filter(plan => plan.id !== id));
+  };
+
+  const handleDeleteDiscount = (id: string) => {
+    setDiscounts(discounts.filter(discount => discount.id !== id));
   };
 
   const handleNext = () => {
-    router.push('/(auth)/(register-owner)/gym-capacity');
+    if (plans.length === 0) {
+      Alert.alert('No Plans', 'Please add at least one membership plan');
+      return;
+    }
+    router.push('/(auth)/(registrations)/(register-owner)/gym-capacity');
   };
 
   return (
-    <SafeAreaView
-      className='flex-1'
-      style={{ backgroundColor: theme.background }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       {/* Header */}
@@ -58,11 +205,10 @@ export default function GymPricingScreen() {
             name='arrow-left'
             size={24}
             color={theme.text}
-            style={{ marginRight: 8 }}
           />
           <Text
+            className='text-lg font-medium ml-2'
             style={{ color: theme.text }}
-            className='text-lg font-medium'
           >
             Membership Plans
           </Text>
@@ -70,102 +216,237 @@ export default function GymPricingScreen() {
       </View>
 
       <ScrollView className='flex-1 px-6'>
-        {/* Plan Duration Selection */}
-        <View className='mb-8'>
-          <Text
-            style={{ color: theme.text }}
-            className='text-lg font-bold mb-4'
-          >
-            Plan Duration
-          </Text>
-          <View className='flex-row flex-wrap gap-2'>
-            {planDurations.map(duration => (
-              <TouchableOpacity
-                key={duration}
-                onPress={() => updateFormData('selectedDuration', duration)}
-                className={`flex-1 min-w-[45%] p-4 rounded-xl border ${
-                  formData.selectedDuration === duration ? 'bg-yellow-400' : 'bg-transparent'
-                }`}
-                style={{
-                  borderColor: theme.primary,
-                }}
-              >
-                <Text
-                  style={{
-                    color: formData.selectedDuration === duration ? '#000' : theme.text,
-                    textAlign: 'center',
-                  }}
-                  className='text-base font-medium'
+        {/* Add New Plan Section */}
+        <RegistrationInput title='Add New Plan'>
+          <InputField
+            label='Plan Name'
+            placeholder='e.g. Basic, Premium, Pro'
+            value={currentPlan.name}
+            onChangeText={text => setCurrentPlan({ ...currentPlan, name: text })}
+          />
+
+          {/* Duration Selection */}
+          <View className='mb-4'>
+            <Text
+              className='text-base font-medium mb-2'
+              style={{ color: theme.text }}
+            >
+              Duration
+            </Text>
+            <View className='flex-row flex-wrap gap-2'>
+              {planDurations.map(duration => (
+                <TouchableOpacity
+                  key={duration}
+                  onPress={() => setCurrentPlan({ ...currentPlan, duration })}
+                  className={`px-4 py-2 rounded-xl border ${
+                    currentPlan.duration === duration ? 'bg-yellow-400' : 'bg-transparent'
+                  }`}
+                  style={{ borderColor: theme.primary }}
                 >
-                  {duration}
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={{
+                      color: currentPlan.duration === duration ? '#000' : theme.text,
+                    }}
+                  >
+                    {duration}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <InputField
+            label='Base Price (₹)'
+            placeholder='2000'
+            keyboardType='numeric'
+            value={currentPlan.basePrice}
+            onChangeText={text => setCurrentPlan({ ...currentPlan, basePrice: text })}
+          />
+
+          <InputField
+            label='Joining Fee (₹)'
+            placeholder='1000'
+            keyboardType='numeric'
+            value={currentPlan.joiningFee}
+            onChangeText={text => setCurrentPlan({ ...currentPlan, joiningFee: text })}
+          />
+
+          <UiButton
+            onPress={handleAddPlan}
+            size='sm'
+            variant='outline'
+            className='mt-2'
+          >
+            Add Plan
+          </UiButton>
+        </RegistrationInput>
+
+        {/* Added Plans List */}
+        {plans.length > 0 && (
+          <View className='mb-6'>
+            <Text
+              className='text-lg font-bold mb-4'
+              style={{ color: theme.text }}
+            >
+              Added Plans
+            </Text>
+            {plans.map((plan, index) => (
+              <Animated.View
+                key={plan.id}
+                entering={FadeInDown.delay(index * 100)}
+                className='bg-gray-100 dark:bg-gray-800 p-4 rounded-xl mb-2'
+              >
+                <View className='flex-row justify-between items-center'>
+                  <View>
+                    <Text
+                      className='font-medium'
+                      style={{ color: theme.text }}
+                    >
+                      {plan.name}
+                    </Text>
+                    <Text
+                      className='text-sm'
+                      style={{ color: theme.textSecondary }}
+                    >
+                      {plan.duration} • ₹{plan.basePrice}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => handleDeletePlan(plan.id)}
+                    className='p-2'
+                  >
+                    <MaterialCommunityIcons
+                      name='delete-outline'
+                      size={20}
+                      color={theme.danger}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
             ))}
           </View>
-        </View>
+        )}
 
-        {/* Plan Details */}
-        <RegistrationInput title='Plan Details'>
+        {/* Preview Section */}
+        {plans.length > 0 && (
+          <View className='mb-6'>
+            <View className='flex-row justify-between items-center mb-4'>
+              <Text
+                className='text-lg font-bold'
+                style={{ color: theme.text }}
+              >
+                Preview
+              </Text>
+              <TouchableOpacity
+                className='flex-row items-center'
+                onPress={() => {
+                  /* Handle edit all plans */
+                }}
+              >
+                <MaterialCommunityIcons
+                  name='pencil'
+                  size={16}
+                  color={theme.primary}
+                />
+                <Text
+                  className='ml-1 text-sm'
+                  style={{ color: theme.primary }}
+                >
+                  Edit All
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {plans.map(plan => (
+              <PlanPreviewCard
+                key={plan.id}
+                plan={plan}
+                discounts={discounts}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Special Discounts Section */}
+        <RegistrationInput title='Special Discounts (Optional)'>
           <InputField
-            label='Base Price'
-            placeholder='e.g. ₹2000'
+            label='Discount Name'
+            placeholder='e.g. Student, Senior Citizen'
+            value={newDiscountName}
+            onChangeText={setNewDiscountName}
+          />
+          <InputField
+            label='Discount Percentage'
+            placeholder='10'
             keyboardType='numeric'
-            required
-            value={formData.basePrice}
-            onChangeText={text => updateFormData('basePrice', text)}
+            value={newDiscountPercentage}
+            onChangeText={setNewDiscountPercentage}
           />
-          <InputField
-            label='Joining Fee'
-            placeholder='e.g. ₹1000'
-            keyboardType='numeric'
-            required
-            value={formData.joiningFee}
-            onChangeText={text => updateFormData('joiningFee', text)}
-          />
-          <InputField
-            label='Max Members per Batch'
-            placeholder='e.g. 30'
-            keyboardType='numeric'
-            required
-            value={formData.maxMembers}
-            onChangeText={text => updateFormData('maxMembers', text)}
-          />
-          <InputField
-            label='Additional Notes'
-            placeholder='Any additional details about the plan'
-            multiline
-            numberOfLines={3}
-            value={formData.additionalNotes}
-            onChangeText={text => updateFormData('additionalNotes', text)}
-          />
+          <UiButton
+            onPress={handleAddDiscount}
+            size='sm'
+            variant='outline'
+            className='mt-2'
+          >
+            Add Discount
+          </UiButton>
         </RegistrationInput>
 
-        {/* Special Offers */}
-        <RegistrationInput title='Special Offers (Optional)'>
-          <InputField
-            label='Student Discount (%)'
-            placeholder='e.g. 10'
-            keyboardType='numeric'
-            value={formData.studentDiscount}
-            onChangeText={text => updateFormData('studentDiscount', text)}
-          />
-          <InputField
-            label='Corporate Discount (%)'
-            placeholder='e.g. 15'
-            keyboardType='numeric'
-            value={formData.corporateDiscount}
-            onChangeText={text => updateFormData('corporateDiscount', text)}
-          />
-        </RegistrationInput>
+        {/* Added Discounts List */}
+        {discounts.length > 0 && (
+          <View className='mb-6'>
+            <Text
+              className='text-lg font-bold mb-4'
+              style={{ color: theme.text }}
+            >
+              Added Discounts
+            </Text>
+            {discounts.map((discount, index) => (
+              <Animated.View
+                key={discount.id}
+                entering={FadeInDown.delay(index * 100)}
+                className='bg-gray-100 dark:bg-gray-800 p-4 rounded-xl mb-2'
+              >
+                <View className='flex-row justify-between items-center'>
+                  <View>
+                    <Text
+                      className='font-medium'
+                      style={{ color: theme.text }}
+                    >
+                      {discount.name}
+                    </Text>
+                    <Text
+                      className='text-sm'
+                      style={{ color: theme.textSecondary }}
+                    >
+                      {discount.percentage}% off
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteDiscount(discount.id)}
+                    className='p-2'
+                  >
+                    <MaterialCommunityIcons
+                      name='delete-outline'
+                      size={20}
+                      color={theme.danger}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </Animated.View>
+            ))}
+          </View>
+        )}
       </ScrollView>
 
       {/* Next Button */}
       <View className='p-6'>
         <UiButton
-          children='Next'
           size='lg'
           onPress={handleNext}
-        />
+        >
+          Next
+        </UiButton>
       </View>
     </SafeAreaView>
   );

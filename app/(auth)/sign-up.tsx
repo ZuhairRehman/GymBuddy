@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import React, { useState } from 'react';
 import {
   View,
@@ -18,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase/supabase';
 
+// SignUpScreen component handles user registration functionality
 export default function SignUpScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
@@ -32,6 +34,10 @@ export default function SignUpScreen() {
   const [signUpError, setSignUpError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  /**
+   * Validates form inputs
+   * Ensures email and password meet required criteria
+   */
   const validateForm = () => {
     let tempErrors: Record<string, string> = {};
 
@@ -51,6 +57,10 @@ export default function SignUpScreen() {
     return Object.keys(tempErrors).length === 0;
   };
 
+  /**
+   * Handles sign-up form submission
+   * Registers a new user with provided credentials
+   */
   const handleSignUp = async () => {
     setSignUpError(null);
 
@@ -81,6 +91,7 @@ export default function SignUpScreen() {
       className='flex-1'
       style={{ backgroundColor: theme.background }}
     >
+      {/* Set the status bar style based on the theme */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       <KeyboardAvoidingView
@@ -89,6 +100,7 @@ export default function SignUpScreen() {
       >
         {/* Logo Section */}
         <View className='flex-1 justify-center'>
+          {/* Display app logo */}
           <View className='items-center'>
             <View className='w-48 h-48 items-center justify-center mb-8'>
               <Image
@@ -114,6 +126,7 @@ export default function SignUpScreen() {
         {/* Form Section */}
         <View className='flex-1 px-6'>
           <View className='space-y-6'>
+            {/* Display sign-up error if any */}
             {signUpError && <Text className='text-red-500 text-sm text-center'>{signUpError}</Text>}
 
             {/* Email Input */}

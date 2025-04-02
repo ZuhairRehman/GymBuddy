@@ -4,6 +4,7 @@
  * Includes: Dashboard, Members, Analytics, Billing, and Profile tabs
  */
 
+// Import necessary modules and components
 import { Stack, Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -19,17 +20,20 @@ import TabBar from '@/components/ui/TabBar';
  * - Protected route handling
  * - Theme-aware navigation
  */
+// OwnerLayout component configures bottom tab navigation for the gym owner section
 export default function OwnerLayout() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
   return (
     <>
+      {/* Set the status bar style based on the theme */}
       <StatusBar
         style={colorScheme === 'dark' ? 'light' : 'dark'}
         backgroundColor={theme.background}
       />
 
+      {/* Tabs for navigation */}
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -37,6 +41,7 @@ export default function OwnerLayout() {
         }}
         tabBar={props => <TabBar {...props} />}
       >
+        {/* Dashboard Tab */}
         <Tabs.Screen
           name='dashboard'
           options={{
@@ -50,6 +55,7 @@ export default function OwnerLayout() {
             ),
           }}
         />
+        {/* Members Tab */}
         <Tabs.Screen
           name='manage'
           options={{
@@ -63,6 +69,7 @@ export default function OwnerLayout() {
             ),
           }}
         />
+        {/* Analytics Tab */}
         <Tabs.Screen
           name='analytics'
           options={{
@@ -76,6 +83,7 @@ export default function OwnerLayout() {
             ),
           }}
         />
+        {/* Billing Tab */}
         <Tabs.Screen
           name='billing'
           options={{
@@ -89,6 +97,7 @@ export default function OwnerLayout() {
             ),
           }}
         />
+        {/* Profile Tab */}
         <Tabs.Screen
           name='profile'
           options={{
@@ -102,7 +111,6 @@ export default function OwnerLayout() {
             ),
           }}
         />
-        
       </Tabs>
     </>
   );

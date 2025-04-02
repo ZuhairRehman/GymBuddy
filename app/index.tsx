@@ -1,3 +1,14 @@
+/**
+ * Root Index Component
+ * @component
+ * @description
+ * Entry point of the application that handles:
+ * - Initial route determination
+ * - Authentication status checking
+ * - User role-based routing
+ * - First launch detection
+ */
+
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect } from 'react';
 import { router } from 'expo-router';
@@ -6,11 +17,23 @@ import { AppStorage } from '@/lib/storage/appStorage';
 import { COLORS } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 
+/**
+ * Index Component
+ * Displays loading indicator while determining initial route
+ * Routes users based on:
+ * 1. First launch status
+ * 2. Authentication state
+ * 3. User role (if authenticated)
+ */
 export default function Index() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
   useEffect(() => {
+    /**
+     * Determines and navigates to appropriate initial route
+     * Checks authentication, user role, and first launch status
+     */
     const checkInitialRoute = async () => {
       try {
         // Check if this is first launch

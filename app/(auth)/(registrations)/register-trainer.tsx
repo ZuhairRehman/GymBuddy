@@ -1,3 +1,4 @@
+// Import necessary components and libraries
 import React, { useState } from 'react';
 import {
   View,
@@ -32,10 +33,10 @@ const specializations = [
 export default function RegisterTrainerScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
+
+  // State for form data, errors, and loading status
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Form state
   const [formData, setFormData] = useState({
     full_name: '',
     mobile_number: '',
@@ -45,7 +46,7 @@ export default function RegisterTrainerScreen() {
     selectedSpecializations: [] as string[],
   });
 
-  // Update form data
+  // Update form data and clear errors
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -67,7 +68,7 @@ export default function RegisterTrainerScreen() {
     }));
   };
 
-  // Form validation
+  // Validate form fields
   const validateForm = () => {
     const tempErrors: Record<string, string> = {};
 
@@ -152,6 +153,7 @@ export default function RegisterTrainerScreen() {
       className='flex-1'
       style={{ backgroundColor: theme.background }}
     >
+      {/* Status bar styling */}
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       <KeyboardAvoidingView
@@ -180,7 +182,7 @@ export default function RegisterTrainerScreen() {
         </View>
 
         <ScrollView className='flex-1 px-6'>
-          {/* Personal Information */}
+          {/* Personal Information Section */}
           <RegistrationInput title='Personal Information'>
             <InputField
               label='Full Name'
@@ -210,7 +212,7 @@ export default function RegisterTrainerScreen() {
             />
           </RegistrationInput>
 
-          {/* Professional Information */}
+          {/* Professional Information Section */}
           <RegistrationInput title='Professional Information'>
             <InputField
               label='Years of Experience'

@@ -32,6 +32,7 @@ END CASE
 RETURN _user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
 CREATE OR REPLACE FUNCTION register_gym(
     _owner_id UUID,
     _name TEXT,
@@ -112,6 +113,7 @@ FROM profiles
 WHERE id = _trainer_id;
 IF _trainer_role != 'trainer' THEN RAISE EXCEPTION 'Only trainers can be added to gyms as trainers';
 END IF;
+
 -- Create relationship
 INSERT INTO gym_trainers (gym_id, trainer_id, status)
 VALUES (_gym_id, _trainer_id, _status)
@@ -119,6 +121,7 @@ RETURNING id INTO _relationship_id;
 RETURN _relationship_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
 CREATE OR REPLACE FUNCTION join_gym_with_code(
     _join_code TEXT,
     _user_id UUID,
@@ -205,3 +208,94 @@ SQLERRM;
 RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- Function to create a new membership plan
+CREATE OR REPLACE FUNCTION create_membership_plan(
+    _gym_id UUID,
+    _membership_type_id UUID,
+    _name TEXT,
+    _duration_months INTEGER,
+    _base_price NUMERIC(10, 2),
+    _joining_fee NUMERIC(10, 2),
+    _max_members INTEGER,
+  ) RETURNS UUID AS $$
+DECLARE _plan_id UUID;
+BEGIN -- Verify gym ownership
+IF NOT is_gym_owner(_gym_id) THEN RAISE EXCEPTION 'Only gym owners can create membership plans';
+END IF;
+-- Verify membership type exists
+IF NOT EXISTS (
+  SELECT 1
+  FROM membership_types
+  WHERE id = _membership_type_id
+) THEN RAISE EXCEPTION 'Invalid membership type';
+END IF;
+INSERT INTO membership_plans (
+    gym_id,
+    membership_type_id,
+    name,
+    duration_months,
+    base_price,
+    joining_fee,
+    max_members,
+  )
+VALUES (
+    _gym_id,
+    _membership_type_id,
+    _name,
+    _duration_months,
+    _base_price,
+    _joining_fee,
+    _max_members,
+  )
+RETURNING id INTO _plan_id;
+RETURN _plan_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER TABLE membership_types
+ADD COLUMN base_facilities TEXT [];
+ALTER TABLE membership_plans
+ADD COLUMN time_restrictions JSONB;
+
+-- Function to get available membership types for a gym
+CREATE OR REPLACE FUNCTION get_gym_membership_types(_gym_id UUID) RETURNS TABLE (
+    id UUID,
+    name TEXT,
+    description TEXT,
+    plans JSONB
+  ) AS $$ BEGIN RETURN QUERY
+SELECT mt.id,
+  mt.name,
+  mt.description,
+  COALESCE(
+    (
+      SELECT jsonb_agg(
+          jsonb_build_object(
+            'plan_id',
+            mp.id,
+            'plan_name',
+            mp.name,
+            'duration_months',
+            mp.duration_months,
+            'base_price',
+            mp.base_price,
+            'joining_fee',
+            mp.joining_fee
+          )
+        )
+      FROM membership_plans mp
+      WHERE mp.membership_type_id = mt.id
+        AND mp.gym_id = _gym_id
+        AND mp.is_active = TRUE
+    ),
+    '[]'::jsonb
+  ) AS plans
+FROM membership_types mt;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER TABLE discounts
+ADD CONSTRAINT valid_percentage CHECK (percentage > 0 AND percentage <= 100);
+

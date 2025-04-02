@@ -9,6 +9,14 @@ import { AppStorage } from '@/lib/storage/appStorage';
 
 const { width } = Dimensions.get('window');
 
+/**
+ * Slide data type definition
+ * @typedef {Object} SlideType
+ * @property {string} id - Unique identifier for the slide
+ * @property {string} title - Main heading text
+ * @property {string} subtitle - Descriptive text
+ * @property {string} icon - MaterialCommunityIcons icon name
+ */
 type SlideType = {
   id: string;
   title: string;
@@ -16,6 +24,10 @@ type SlideType = {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
 };
 
+/**
+ * Predefined slides data for onboarding
+ * Each slide represents a different user type and their features
+ */
 const slides: SlideType[] = [
   {
     id: '1',
@@ -40,12 +52,22 @@ const slides: SlideType[] = [
   },
 ];
 
+/**
+ * OnboardingScreen Component
+ * @component
+ * @description Manages the onboarding flow with animated slides and navigation
+ */
 const OnboardingScreen = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
 
+  /**
+   * Renders individual slide content
+   * @param {Object} props - Slide item and index
+   * @returns {React.ReactElement} Slide view component
+   */
   const renderItem = ({ item, index }: { item: (typeof slides)[0]; index: number }) => {
     return (
       <View
@@ -113,6 +135,10 @@ const OnboardingScreen = () => {
     );
   };
 
+  /**
+   * Handles navigation to next slide or app entry
+   * Marks app as launched when completing onboarding
+   */
   const handleNext = async () => {
     if (currentIndex < slides.length - 1) {
       flatListRef.current?.scrollToIndex({
@@ -126,6 +152,10 @@ const OnboardingScreen = () => {
     }
   };
 
+  /**
+   * Renders progress indicators for slides
+   * @returns {React.ReactElement} Progress bar component
+   */
   const renderProgressBar = () => {
     return (
       <View className='flex-row h-1 mb-12'>

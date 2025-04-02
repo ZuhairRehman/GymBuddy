@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useColorScheme } from 'react-native';
@@ -32,6 +33,7 @@ const members: Partial<Member>[] = [
 
 const filters = ['All', 'Active', 'Pending', 'Expired'];
 
+// ManageScreen component allows gym owners to manage their members
 export default function ManageScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
@@ -39,7 +41,7 @@ export default function ManageScreen() {
 
   return (
     <Screen>
-      {/* Header */}
+      {/* Header Section */}
       <Text
         style={{ color: theme.text }}
         className='text-2xl font-bold'
@@ -55,6 +57,7 @@ export default function ManageScreen() {
 
       {/* Search Bar */}
       <View className='flex-row items-center mb-6'>
+        {/* Input field for searching members */}
         <View
           className='flex-1 flex-row items-center p-4 rounded-xl'
           style={{ backgroundColor: theme.surface }}
@@ -71,6 +74,7 @@ export default function ManageScreen() {
             style={{ color: theme.text }}
           />
         </View>
+        {/* Button to add a new member */}
         <TouchableOpacity
           className='ml-4 p-4 rounded-xl'
           style={{ backgroundColor: theme.primary }}
@@ -84,8 +88,9 @@ export default function ManageScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Filters */}
+      {/* Filters Section */}
       <View className='flex-row mb-6'>
+        {/* Filter buttons for member status */}
         {filters.map(filter => (
           <TouchableOpacity
             key={filter}
@@ -106,8 +111,9 @@ export default function ManageScreen() {
         ))}
       </View>
 
-      {/* Member List */}
+      {/* Member List Section */}
       <View className='space-y-4'>
+        {/* Display list of members */}
         {members.map(member => (
           <TouchableOpacity
             key={member.id}
@@ -116,17 +122,20 @@ export default function ManageScreen() {
             onPress={() => router.push(`/(owner)/manage/${member.id}`)}
           >
             <View className='flex-row items-center'>
+              {/* Placeholder for profile image */}
               <View
                 className='w-12 h-12 rounded-full bg-gray-200 mr-4'
                 style={{ backgroundColor: theme.surfaceHighlight }}
               />
               <View className='flex-1'>
+                {/* Member name */}
                 <Text
                   style={{ color: theme.text }}
                   className='text-base font-medium'
                 >
                   {member.firstName} {member.lastName}
                 </Text>
+                {/* Membership ID */}
                 <Text
                   style={{ color: theme.textSecondary }}
                   className='text-sm'
@@ -134,6 +143,7 @@ export default function ManageScreen() {
                   {member.membershipId}
                 </Text>
               </View>
+              {/* Chevron icon for navigation */}
               <MaterialCommunityIcons
                 name='chevron-right'
                 size={24}

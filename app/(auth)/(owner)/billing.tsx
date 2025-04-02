@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useColorScheme } from 'react-native';
@@ -28,11 +29,16 @@ const transactions = [
 
 const tabs = ['All', 'Paid', 'Pending', 'Failed'];
 
+// BillingScreen component allows gym owners to manage payments and transactions
 export default function BillingScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
   const [activeTab, setActiveTab] = React.useState('All');
 
+  /**
+   * Returns the color associated with a transaction status
+   * @param status - The status of the transaction
+   */
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
@@ -48,7 +54,7 @@ export default function BillingScreen() {
 
   return (
     <Screen>
-      {/* Header */}
+      {/* Header Section */}
       <Text
         style={{ color: theme.text }}
         className='text-2xl font-bold'
@@ -62,8 +68,9 @@ export default function BillingScreen() {
         Manage payments and transactions
       </Text>
 
-      {/* Summary Cards */}
+      {/* Summary Cards Section */}
       <View className='flex-row -mx-2 mb-6'>
+        {/* Display summary cards for revenue and pending payments */}
         {[
           {
             title: 'Total Revenue',
@@ -107,8 +114,9 @@ export default function BillingScreen() {
         ))}
       </View>
 
-      {/* Search and Filter */}
+      {/* Search and Filter Section */}
       <View className='flex-row items-center mb-6'>
+        {/* Search bar for transactions */}
         <View
           className='flex-1 flex-row items-center p-4 rounded-xl'
           style={{ backgroundColor: theme.surface }}
@@ -125,6 +133,7 @@ export default function BillingScreen() {
             style={{ color: theme.text }}
           />
         </View>
+        {/* Button to add a new transaction */}
         <TouchableOpacity
           className='ml-4 p-4 rounded-xl'
           style={{ backgroundColor: theme.primary }}
@@ -138,8 +147,9 @@ export default function BillingScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Status Tabs */}
+      {/* Status Tabs Section */}
       <View className='flex-row mb-6'>
+        {/* Filter tabs for transaction status */}
         {tabs.map(tab => (
           <TouchableOpacity
             key={tab}
@@ -158,8 +168,9 @@ export default function BillingScreen() {
         ))}
       </View>
 
-      {/* Transactions List */}
+      {/* Transactions List Section */}
       <View className='space-y-4'>
+        {/* Display list of transactions */}
         {transactions.map(transaction => (
           <TouchableOpacity
             key={transaction.id}

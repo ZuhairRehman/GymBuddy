@@ -1,3 +1,4 @@
+// Import necessary modules and components
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useColorScheme } from 'react-native';
@@ -38,6 +39,7 @@ const insights = [
 
 const timeFilters = ['Week', 'Month', 'Quarter', 'Year'];
 
+// AnalyticsScreen component provides insights into gym performance
 export default function AnalyticsScreen() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
@@ -45,7 +47,7 @@ export default function AnalyticsScreen() {
 
   return (
     <Screen>
-      {/* Header */}
+      {/* Header Section */}
       <Text
         style={{ color: theme.text }}
         className='text-2xl font-bold'
@@ -59,8 +61,9 @@ export default function AnalyticsScreen() {
         Track your gym's performance
       </Text>
 
-      {/* Time Filter */}
+      {/* Time Filter Section */}
       <View className='flex-row mb-6'>
+        {/* Filter buttons for time range */}
         {timeFilters.map(filter => (
           <TouchableOpacity
             key={filter}
@@ -81,8 +84,9 @@ export default function AnalyticsScreen() {
         ))}
       </View>
 
-      {/* Insights Grid */}
+      {/* Insights Grid Section */}
       <View className='flex-row flex-wrap -m-2'>
+        {/* Display insights such as retention, revenue, etc. */}
         {insights.map((insight, index) => (
           <View
             key={index}
@@ -137,7 +141,7 @@ export default function AnalyticsScreen() {
         ))}
       </View>
 
-      {/* AI Insights */}
+      {/* AI Insights Section */}
       <View className='mt-6'>
         <Text
           style={{ color: theme.text }}
@@ -149,6 +153,7 @@ export default function AnalyticsScreen() {
           className='p-4 rounded-xl'
           style={{ backgroundColor: theme.surface }}
         >
+          {/* Display AI-generated recommendations */}
           <View className='flex-row items-center mb-3'>
             <MaterialCommunityIcons
               name='robot'
