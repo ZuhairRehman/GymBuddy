@@ -299,3 +299,75 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 ALTER TABLE discounts
 ADD CONSTRAINT valid_percentage CHECK (percentage > 0 AND percentage <= 100);
 
+-- Function to insert a new membership plan
+CREATE OR REPLACE FUNCTION insert_membership_plan(
+  _gym_id UUID,
+  _name TEXT,
+  _duration_months INTEGER,
+  _base_price NUMERIC(10,2),
+  _joining_fee NUMERIC(10,2)
+) RETURNS UUID AS $$
+DECLARE
+  _plan_id UUID;
+BEGIN
+  -- Verify gym ownership
+  IF NOT is_gym_owner(_gym_id) THEN
+    RAISE EXCEPTION 'Only gym owners can create membership plans';
+  END IF;
+
+  -- Insert the plan
+  INSERT INTO membership_plans (
+    gym_id,
+    name,
+    duration_months,
+    base_price,
+    joining_fee,
+    is_active
+  ) VALUES (
+    _gym_id,
+    _name,
+    _duration_months,
+    _base_price,
+    _joining_fee,
+    true
+  ) RETURNING id INTO _plan_id;
+
+  RETURN _plan_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to insert a new discount
+CREATE OR REPLACE FUNCTION insert_discount(
+  _gym_id UUID,
+  _name TEXT,
+  _percentage NUMERIC(5,2)
+) RETURNS UUID AS $$
+DECLARE
+  _discount_id UUID;
+BEGIN
+  -- Verify gym ownership
+  IF NOT is_gym_owner(_gym_id) THEN
+    RAISE EXCEPTION 'Only gym owners can create discounts';
+  END IF;
+
+  -- Validate percentage
+  IF _percentage <= 0 OR _percentage > 100 THEN
+    RAISE EXCEPTION 'Discount percentage must be between 0 and 100';
+  END IF;
+
+  -- Insert the discount
+  INSERT INTO discounts (
+    gym_id,
+    name,
+    percentage,
+    is_active
+  ) VALUES (
+    _gym_id,
+    _name,
+    _percentage,
+    true
+  ) RETURNING id INTO _discount_id;
+
+  RETURN _discount_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

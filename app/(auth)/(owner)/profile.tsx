@@ -1,10 +1,8 @@
-import { View, Text, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { COLORS } from '@/constants/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Screen from '@/components/ui/Screen';
-import { supabase } from '@/lib/supabase/supabase';
-import { router } from 'expo-router';
 
 export default function OwnerProfile() {
   const colorScheme = useColorScheme();
@@ -22,7 +20,7 @@ export default function OwnerProfile() {
             /* Navigate to edit profile */
           },
         },
-        {
+        { 
           title: 'Change Password',
           subtitle: 'Update your security credentials',
           icon: 'lock-reset',
@@ -88,36 +86,17 @@ export default function OwnerProfile() {
             /* Navigate to help */
           },
         },
-      ],
-    },
-  ];
-
-  const handleSignOut = async () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
         {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await supabase.auth.signOut();
-              router.replace('/(auth)/login/');
-            } catch (error) {
-              console.error('Error signing out:', error);
-              Alert.alert('Error', 'Failed to sign out. Please try again.');
-            }
+          title: 'Privacy Policy',
+          subtitle: 'View our privacy policy',
+          icon: 'shield-account-outline',
+          onPress: () => {
+            /* Navigate to privacy policy */
           },
         },
       ],
-      { cancelable: true },
-    );
-  };
+    },
+  ];
 
   return (
     <Screen scrollable>
@@ -160,7 +139,7 @@ export default function OwnerProfile() {
               <TouchableOpacity
                 key={itemIndex}
                 onPress={item.onPress}
-                className='flex-row items-center p-4 mb-2 rounded-xl'
+                className='flex-row items-center p-4 rounded-xl'
                 style={{ backgroundColor: theme.surface }}
               >
                 <View
@@ -201,21 +180,16 @@ export default function OwnerProfile() {
       {/* Sign Out Button */}
       <TouchableOpacity
         className='flex-row items-center justify-center p-4 rounded-xl mb-6'
-        style={{
-          backgroundColor: theme.surface,
-          borderWidth: 1,
-          borderColor: '#EF4444',
-        }}
-        onPress={handleSignOut}
+        style={{ backgroundColor: theme.primary }}
       >
         <MaterialCommunityIcons
           name='logout'
           size={20}
-          color='#EF4444'
+          color={theme.danger}
           style={{ marginRight: 8 }}
         />
         <Text
-          style={{ color: '#EF4444' }}
+          style={{ color: theme.text }}
           className='text-base font-medium'
         >
           Sign Out

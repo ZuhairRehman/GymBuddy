@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import Screen from '@/components/ui/Screen';
 import type { Member, OwnerDashboardState } from '@/types/owner-types';
+import { useDashboardData } from '@/hooks/useDashboardData';
 
 interface StatItem {
   title: string;
@@ -15,33 +16,6 @@ interface StatItem {
 }
 
 // Mock data with proper typing
-const stats: StatItem[] = [
-  {
-    title: 'Total Members',
-    value: '234',
-    icon: 'account-group',
-    trend: { value: 12, isPositive: true },
-  },
-  {
-    title: 'Revenue',
-    value: '₹52,000',
-    icon: 'currency-inr',
-    trend: { value: 8, isPositive: true },
-  },
-  {
-    title: 'Active Classes',
-    value: '12',
-    icon: 'calendar-check',
-    trend: { value: 5, isPositive: false },
-  },
-  {
-    title: "Today's Traffic",
-    value: '45/100',
-    icon: 'trending-up',
-    trend: { value: 15, isPositive: true },
-  },
-];
-
 const recentMembers: Pick<
   Member,
   'id' | 'firstName' | 'lastName' | 'role' | 'phone' | 'profileImage'
@@ -73,6 +47,34 @@ const mockDashboardState: Partial<OwnerDashboardState> = {
 export default function OwnerDashboard() {
   const colorScheme = useColorScheme();
   const theme = COLORS[colorScheme === 'dark' ? 'dark' : 'light'];
+  const dashboardData = useDashboardData();
+
+  const stats: StatItem[] = [
+    {
+      title: 'Total Members',
+      value: dashboardData.members.loading ? '...' : dashboardData.members.total.toString(),
+      icon: 'account-group',
+      trend: { value: 12, isPositive: true },
+    },
+    {
+      title: 'Revenue',
+      value: '₹52,000',
+      icon: 'currency-inr',
+      trend: { value: 8, isPositive: true },
+    },
+    {
+      title: 'Active Classes',
+      value: '12',
+      icon: 'calendar-check',
+      trend: { value: 5, isPositive: false },
+    },
+    {
+      title: "Today's Traffic",
+      value: '45/100',
+      icon: 'trending-up',
+      trend: { value: 15, isPositive: true },
+    },
+  ];
 
   return (
     <Screen scrollable>

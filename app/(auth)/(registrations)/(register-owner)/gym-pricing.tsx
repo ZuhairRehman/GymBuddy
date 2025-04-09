@@ -16,6 +16,7 @@ import RegistrationInput, { InputField } from '@/components/ui/RegistrationInput
 import UiButton from '@/components/ui/UiButton';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { supabase } from '@/lib/supabase/supabase';
 
 interface PlanType {
   id: string;
@@ -105,7 +106,7 @@ const PlanPreviewCard = ({ plan, discounts }: { plan: PlanType; discounts: Disco
               key={discount.id}
               className='flex-row items-center mb-2'
             >
-              <MaterialCommunityIcons 
+              <MaterialCommunityIcons
                 name='tag-outline'
                 size={16}
                 color={theme.primary}
@@ -143,36 +144,116 @@ export default function GymPricingScreen() {
 
   const planDurations = ['1 Month', '3 Months', '6 Months', '12 Months'];
 
-  const handleAddPlan = () => {
+  const handleAddPlan = async () => {
     if (!currentPlan.name || !currentPlan.basePrice) {
       Alert.alert('Missing Details', 'Please fill in plan name and base price');
       return;
     }
-    setPlans([...plans, currentPlan]);
-    setCurrentPlan({
-      id: Date.now().toString(),
-      name: '',
-      duration: '1 Month',
-      basePrice: '',
-      joiningFee: '',
-    });
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Get gym ID (you'll need to store this after gym creation)
+      const { data: gymData } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('owner_id', session.user.id)
+        .single();
+
+      if (!gymData?.id) {
+        Alert.alert('Error', 'Please create your gym first');
+        return;
+      }
+
+      // Insert plan
+      const { error: planError } = await supabase.rpc('insert_membership_plan', {
+        _gym_id: gymData.id,
+        _name: currentPlan.name,
+        _duration_months: parseInt(currentPlan.duration),
+        _base_price: parseFloat(currentPlan.basePrice),
+        _joining_fee: currentPlan.joiningFee ? parseFloat(currentPlan.joiningFee) : 0,
+      });
+
+      if (planError) {
+        console.error('Error creating plan:', planError);
+        Alert.alert('Error', 'Failed to create plan');
+        return;
+      }
+
+      // Add plan to local state
+      setPlans([...plans, currentPlan]);
+
+      // Reset form
+      setCurrentPlan({
+        id: Date.now().toString(),
+        name: '',
+        duration: '1 Month',
+        basePrice: '',
+        joiningFee: '',
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred');
+    }
   };
 
-  const handleAddDiscount = () => {
+  const handleAddDiscount = async () => {
     if (!newDiscountName || !newDiscountPercentage) {
       Alert.alert('Missing Details', 'Please fill in discount name and percentage');
       return;
     }
-    setDiscounts([
-      ...discounts,
-      {
-        id: Date.now().toString(),
-        name: newDiscountName,
-        percentage: newDiscountPercentage,
-      },
-    ]);
-    setNewDiscountName('');
-    setNewDiscountPercentage('');
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // Get gym ID
+      const { data: gymData } = await supabase
+        .from('gyms')
+        .select('id')
+        .eq('owner_id', session.user.id)
+        .single();
+
+      if (!gymData?.id) {
+        Alert.alert('Error', 'Please create your gym first');
+        return;
+      }
+
+      // Insert discount
+      const { error: discountError } = await supabase.rpc('insert_discount', {
+        _gym_id: gymData.id,
+        _name: newDiscountName,
+        _percentage: parseFloat(newDiscountPercentage),
+      });
+
+      if (discountError) {
+        console.error('Error creating discount:', discountError);
+        Alert.alert('Error', 'Failed to create discount');
+        return;
+      }
+
+      // Add discount to local state
+      setDiscounts([
+        ...discounts,
+        {
+          id: Date.now().toString(),
+          name: newDiscountName,
+          percentage: newDiscountPercentage,
+        },
+      ]);
+
+      // Reset form
+      setNewDiscountName('');
+      setNewDiscountPercentage('');
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred');
+    }
   };
 
   const handleDeletePlan = (id: string) => {
